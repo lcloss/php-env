@@ -34,9 +34,11 @@ $path_from = '.' . DIRECTORY_SEPARATOR;
 
 $env = Environment::getInstance('.env', $path_from);
 $database = $env->database;
+echo $database['dbname'];
 
 // Or...
 $datbase = $env->getSection('database');
+echo $database['dbname'];
 ```
 
 ### Retrieving a property
@@ -46,8 +48,11 @@ use LCloss\Env\Environment;
 
 $env = Environment::getInstance();  // Will retrieve .env file from current path
 $key1 = $env->key1; // Will retrive first property with this 'key1': value1
+echo $key1;
 
 // Or...
 $key1 = $env->getKey('other_section', 'key1');  // Retrieve: value2
+echo $key1;
+
 ```
 

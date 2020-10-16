@@ -1,0 +1,14 @@
+{
+    "name": "lcloss/env",
+    "description": "Simple environment package",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Luciano Closs",
+            "email": "luciano@devcorner.io"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
