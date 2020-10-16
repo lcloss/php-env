@@ -53,6 +53,6 @@ echo $key1;
 // Or...
 $key1 = $env->getKey('other_section', 'key1');  // Retrieve: value2
 echo $key1;
-
 ```
+
 
