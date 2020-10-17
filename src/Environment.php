@@ -9,12 +9,16 @@ final class Environment
 
     private function __construct() {}
 
-    public static function getInstance( $env_file = '.env', $path = '.' . DIRECTORY_SEPARATOR )
+    public static function getInstance( $env_file = '.env', $path = NULL )
     {
         if ( is_null(self::$instance) ) {
             self::$instance = new Environment();
 
-            $base = $path;
+            if ( is_null( $path ) ) {
+                $base = '.' . DIRECTORY_SEPARATOR;
+            } else {
+                $base = $path;
+            }
             self::$instance->setBase( $base );
 
             // Load initial data
