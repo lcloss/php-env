@@ -1,5 +1,5 @@
 {
-    "name": "lcloss/php-env",
+    "name": "lcloss/env",
     "description": "Simple environment package",
     "keywords": ["php","env","environment",".env"],
     "homepage": "https://php-env.devcorner.io",
