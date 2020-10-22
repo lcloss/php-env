@@ -9,15 +9,23 @@ final class Environment
 
     private function __construct() {}
 
-    public static function getInstance( $env_file = '.env', $path = NULL )
+    public static function getInstance( $env_file = '.env' )
     {
         if ( is_null(self::$instance) ) {
             self::$instance = new Environment();
 
-            if ( is_null( $path ) ) {
-                $base = '.' . DIRECTORY_SEPARATOR;
+            if ( $env_file == '.env' ) {
+                $paths = explode( DIRECTORY_SEPARATOR, __DIR__ );
+
+                if ( count( $paths ) > 4 ) {
+                    $paths = array_slice( $paths, 0, -4 );
+                    $base = implode( DIRECTORY_SEPARATOR, $paths ) . DIRECTORY_SEPARATOR;
+                } else {
+                    throw \Exception(sprint('Cannot determine base path.'));
+                }
             } else {
-                $base = $path;
+                $paths = array_slice( $env_file, 0, -1 );
+                $base = implode( DIRECTORY_SEPARATOR, $paths ) . DIRECTORY_SEPARATOR;
             }
             self::$instance->setBase( $base );
 
