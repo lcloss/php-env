@@ -17,11 +17,7 @@ final class Environment
             self::setEnv( $env_file );
 
             // Load initial data
-            self::$instance->load( $env_file );
-
-            // Setters with magic method
-            self::$instance->base_dir = $base;
-            self::$instance->env_file = $base . $env_file;
+            self::$instance->load();
         }
 
         return self::$instance;
@@ -36,8 +32,10 @@ final class Environment
     {
         if ( is_null( $env_file ) ) {
             self::setDefaultEnv();
+            return;
         }
         self::$env_file = $env_file;
+        self::$env['env_file'] = $env_file;
     }
 
     public static function load( $env_file = NULL )
@@ -100,5 +98,10 @@ final class Environment
             return '';
         }
         
+    }
+
+    public function __get( $key )
+    {
+        return self::get( $key );
     }
 }
