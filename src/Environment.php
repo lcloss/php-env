@@ -4,30 +4,17 @@ namespace LCloss\Env;
 final class Environment
 {
     private static $instance = NULL;
-    protected $base = "";
-    protected $env = [];
+    private static $env_file = "";
+    private static $env = [];
 
     private function __construct() {}
 
-    public static function getInstance( $env_file = '.env' )
+    public static function getInstance( $env_file = NULL )
     {
         if ( is_null(self::$instance) ) {
             self::$instance = new Environment();
-
-            if ( $env_file == '.env' ) {
-                $paths = explode( DIRECTORY_SEPARATOR, __DIR__ );
-
-                if ( count( $paths ) > 4 ) {
-                    $paths = array_slice( $paths, 0, -4 );
-                    $base = implode( DIRECTORY_SEPARATOR, $paths ) . DIRECTORY_SEPARATOR;
-                } else {
-                    throw \Exception(sprint('Cannot determine base path.'));
-                }
-            } else {
-                $paths = array_slice( $env_file, 0, -1 );
-                $base = implode( DIRECTORY_SEPARATOR, $paths ) . DIRECTORY_SEPARATOR;
-            }
-            self::$instance->setBase( $base );
+            self::loadSettings();
+            self::setEnv( $env_file );
 
             // Load initial data
             self::$instance->load( $env_file );
@@ -40,46 +27,78 @@ final class Environment
         return self::$instance;
     }
 
-    private function load( $env_file = '.env' )
+    public static function setDefaultEnv() {
+        $path = self::get( 'base_dir' );
+        self::setEnv( $path . '.env ');
+    }
+
+    public static function setEnv( $env_file = NULL )
     {
-        $file = $this->base . $env_file;
+        if ( is_null( $env_file ) ) {
+            self::setDefaultEnv();
+        }
+        self::$env_file = $env_file;
+    }
+
+    public static function load( $env_file = NULL )
+    {
+        if ( !is_null( $env_file ) ) {
+            self::setEnv( $env_file );
+        } else {
+            self::setDefaultEnv();
+        }
+        $file = self::$env_file;
         if ( !file_exists($file) ) {
             throw new \Exception(sprintf('File %s does not exists.', $file));
         }
 
-        $this->env = parse_ini_file( $file, true );
+        self::$env = parse_ini_file( $file, true );
     }
 
-    public function getSection( $section )
+    public static function loadSettings()
     {
-        return $this->env[ $section ];
-    }
-
-    public function getKey( $section, $key )
-    {
-        return $this->env[ $section ][ $key ];
-    }
-
-    public function __get( $key )
-    {
-        if ( array_key_exists( $key, $this->env ) ) {
-            return $this->env[ $key ];
+        $dir = explode( DIRECTORY_SEPARATOR, __DIR__ );
+        if ( count( $dir ) > 4 ) {
+            $path = implode( DIRECTORY_SEPARATOR, array_slice( $dir, 0, -4 )) . DIRECTORY_SEPARATOR;
         } else {
-            foreach( $this->env as $section => $data ) {
-                if ( array_key_exists( $key, $data )) {
-                    return $data[ $key ];
-                }
-            }
+            throw \Exception(sprint('Cannot determine base path.'));
+        }
+
+        // Load here other system default info
+        self::$env['base_dir'] = $path;
+    }
+
+    public static function getSection( $section )
+    {
+        $section = self::get( $section );
+        if ( is_array( $section ) ) {
+            return $section;
+        } else {
+            return [];
         }
     }
 
-    public function __set( $key, $value ) 
+    public static function getKey( $section, $key )
     {
-        $this->env[ $key ] = $value;
+        if ( array_key_exists( $env[$section] ) ) {
+            if ( array_key_exists( $env[$section][$key]) ) {
+                return self::$env[ $section ][ $key ];
+            } else {
+                return '';
+            }
+        } else {
+            return '';
+        }
+        
     }
 
-    private function setBase( $base )
+    public static function get( $key )
     {
-        $this->base = $base;
+        if ( array_key_exists( $key, self::$env ) ) {
+            return self::$env[ $key ];
+        } else {
+            return '';
+        }
+        
     }
 }
