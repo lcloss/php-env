@@ -4,6 +4,7 @@ namespace LCloss\Env;
 final class Environment
 {
     private static $instance = NULL;
+    private static $base = "";
     private static $env_file = "";
     private static $env = [];
 
@@ -13,19 +14,31 @@ final class Environment
     {
         if ( is_null(self::$instance) ) {
             self::$instance = new Environment();
-            self::loadSettings();
             self::setEnv( $env_file );
 
-            // Load initial data
+            // Load data from file
             self::$instance->load();
+
+            // Load aditional data
+            self::loadSettings();
         }
 
         return self::$instance;
     }
 
     public static function setDefaultEnv() {
-        $path = self::get( 'base_dir' );
+        $dir = explode( DIRECTORY_SEPARATOR, __DIR__ );
+        if ( count( $dir ) > 4 ) {
+            $path = implode( DIRECTORY_SEPARATOR, array_slice( $dir, 0, -4 )) . DIRECTORY_SEPARATOR;
+        } else {
+            throw \Exception(sprint('Cannot determine base path.'));
+        }
         self::setEnv( $path . '.env ');
+    }
+
+    public static function setBase( $site_folder )
+    {
+        self::$base = $site_folder;
     }
 
     public static function setEnv( $env_file = NULL )
@@ -35,7 +48,6 @@ final class Environment
             return;
         }
         self::$env_file = $env_file;
-        self::$env['env_file'] = $env_file;
     }
 
     public static function load( $env_file = NULL )
@@ -55,15 +67,20 @@ final class Environment
 
     public static function loadSettings()
     {
-        $dir = explode( DIRECTORY_SEPARATOR, __DIR__ );
-        if ( count( $dir ) > 4 ) {
-            $path = implode( DIRECTORY_SEPARATOR, array_slice( $dir, 0, -4 )) . DIRECTORY_SEPARATOR;
+        if ( "" == self::$base ) {
+            $dir = explode( DIRECTORY_SEPARATOR, __DIR__ );
+            if ( count( $dir ) > 4 ) {
+                $path = implode( DIRECTORY_SEPARATOR, array_slice( $dir, 0, -4 )) . DIRECTORY_SEPARATOR;
+            } else {
+                throw \Exception(sprint('Cannot determine base path.'));
+            }
         } else {
-            throw \Exception(sprint('Cannot determine base path.'));
+            $path = self::$base;
         }
 
         // Load here other system default info
         self::$env['base_dir'] = $path;
+        self::$env['env_file'] = self::$env_file;
     }
 
     public static function getSection( $section )
@@ -78,8 +95,8 @@ final class Environment
 
     public static function getKey( $section, $key )
     {
-        if ( array_key_exists( $env[$section] ) ) {
-            if ( array_key_exists( $env[$section][$key]) ) {
+        if ( array_key_exists( $section, self::$env ) ) {
+            if ( array_key_exists( $key, self::$env[$section] ) ) {
                 return self::$env[ $section ][ $key ];
             } else {
                 return '';
