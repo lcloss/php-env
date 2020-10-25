@@ -13,7 +13,6 @@
             "role": "Developer"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "LCloss\\Env\\": "src/"
@@ -22,5 +21,6 @@
             "helpers/env.php"
         ]        
     },
+    "minimum-stability": "stable",
     "require": {}
 }
