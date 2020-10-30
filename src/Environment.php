@@ -112,6 +112,11 @@ final class Environment
         if ( array_key_exists( $key, self::$env ) ) {
             return self::$env[ $key ];
         } else {
+            foreach( self::$env as $i => $group ) {
+                if ( array_key_exists( $key, $group )) {
+                    return $group[$key];
+                }
+            }
             return '';
         }
         
